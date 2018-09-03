@@ -1,2 +1,2 @@
-# ELIXIR_GA4GH
-GA4GH ELIXIR-ITA implementation plan repository
+# ELIXIR-IT_GA4GH
+GA4GH ELIXIR-ITALY implementation plan repository
