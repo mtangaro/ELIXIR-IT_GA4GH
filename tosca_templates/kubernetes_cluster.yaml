@@ -83,6 +83,11 @@ topology_template:
     lrms_wn:
       type: tosca.nodes.indigo.Compute
       capabilities:
+        endpoint:
+          properties:
+            network_name: PUBLIC
+            port: 8080
+            protocol: tcp
         scalable:
           properties:
             count: { get_input: wn_num }
@@ -99,4 +104,6 @@ topology_template:
 
   outputs:
     dashboard_url:
-      value: { concat: [ 'http://', get_attribute: [ lrms_server, public_address, 0 ], ':30443/' ] }
+      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':30443/' ] }
+    cluster_creds:
+      value: { get_attribute: [ lrms_server, endpoint, credential, 0 ] }
