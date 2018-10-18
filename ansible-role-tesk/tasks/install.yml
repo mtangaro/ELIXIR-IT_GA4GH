@@ -27,11 +27,9 @@
 - name: Put tesk service on a specific port
   blockinfile:
     dest: '{{ tesk_deployment_path }}/tesk-svc.yaml'
-    insertafter: '  type: NodePort'
+    insertafter: '- port: 8080'
     block: |
-      ports:
-      - nodePort: '{{ tesk_port }}'
-        port: 8080
+      nodePort: '{{ tesk_port }}'
 
 - name: Build tesk
   shell: 'kubectl create -f .'
