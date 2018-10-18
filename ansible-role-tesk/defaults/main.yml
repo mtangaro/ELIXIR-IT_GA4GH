@@ -1,7 +1,7 @@
 ---
 # defaults file for ansible-role-tesk
 
-tesk_FS_path: '/'
+tesk_FS_path: '/TESK'
 
 tesk_sevice_type: 'NodePort'
 tesk_port: '30080'
