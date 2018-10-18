@@ -11,7 +11,7 @@
 
 - name: Edit config.ini
   ini_file:
-    dest: '{{ tesk_FS_path }}/TESK/deployment/common/config.ini'
+    dest: '{{ tesk_deployment_path }}/config.ini'
     section: '{{ item.section }}'
     option: '{{ item.option }}'
     value: '{{ item.value}}'
@@ -22,11 +22,11 @@
 - name: Build k8s yaml
   shell: 'j2 -g "*.j2" config.ini'
   args:
-    chdir: '{{ tesk_FS_path }}/TESK/deployment/common/'
+    chdir: '{{ tesk_deployment_path }}'
 
 - name: Put tesk service on a specific port
   blockinfile:
-    dest: '{{ tesk_FS_path }}/TESK/deployment/common/tesk-svc.yaml'
+    dest: '{{ tesk_deployment_path }}/tesk-svc.yaml'
     insertafter: '  type: NodePort'
     block: |
       ports:
@@ -36,4 +36,4 @@
 - name: Build tesk
   shell: 'kubectl create -f .'
   args:
-    chdir: '{{ tesk_FS_path }}/TESK/deployment/common/'
+    chdir: '{{ tesk_deployment_path }}'
