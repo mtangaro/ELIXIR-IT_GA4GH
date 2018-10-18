@@ -1,2 +1,12 @@
 ---
 # defaults file for ansible-role-tesk
+
+tesk_FS_path: '/'
+
+tesk_sevice_type: 'NodePort'
+tesk_port: '30080'
+
+tesk_version: 'master'
+
+# mode: auth/noauth
+auth_mode: 'noauth'
