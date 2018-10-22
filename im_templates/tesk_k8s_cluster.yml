@@ -78,7 +78,7 @@ topology_template:
         teskmaster_ftp_user: { get_input: teskmaster_ftp_user }
         teskmaster_ftp_password: { get_input: teskmaster_ftp_password }
       requirements:
-        - lrms: local_front_end
+        - lrms: lrms_front_end
 
     lrms_server:
       type: tosca.nodes.indigo.Compute
@@ -87,8 +87,13 @@ topology_template:
           properties:
             dns_name: kubeserver
             network_name: PUBLIC
-            port: 30443
-            protocol: tcp
+            ports:
+              dashboard_port:
+                protocol: tcp
+                source: 30443
+              tesk_port:
+                protocol: tcp
+                source: 30080
         host:
           properties:
             num_cpus: { get_input: fe_cpus }
@@ -114,8 +119,6 @@ topology_template:
           properties:
             dns_name: vnode-#N#
             network_name: PUBLIC
-            port: 8080
-            protocol: tcp
         scalable:
           properties:
             count: { get_input: wn_num }
@@ -131,6 +134,8 @@ topology_template:
             #version: 16.04
 
   outputs:
+    tesk_url:
+      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':30080' ] }
     dashboard_url:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':30443/' ] }
     cluster_creds:
