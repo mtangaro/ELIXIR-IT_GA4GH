@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-cluster
+  labels:
+    app: rabbitmq-ha
+data:
+  enabled_plugins: |
+    [
+      rabbitmq_consistent_hash_exchange,
+      rabbitmq_federation,
+      rabbitmq_federation_management,
+      rabbitmq_management,
+      rabbitmq_peer_discovery_k8s,
+      rabbitmq_shovel,
+      rabbitmq_shovel_management
+    ].
+
+  rabbitmq.conf: |
+    ## RabbitMQ configuration
+    ## Ref: https://github.com/rabbitmq/rabbitmq-server/blob/master/docs/rabbitmq.conf.example
+
+    ## Authentification
+    ## Alternative backends are provided by plugins, such as rabbitmq-auth-backend-ldap.
+
+    ## Clustering
+    cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
+    cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+    cluster_formation.k8s.address_type = hostname
+    cluster_formation.node_cleanup.interval = 10
+    # Set to false if automatic cleanup of absent nodes is desired.
+    # This can be dangerous, see http://www.rabbitmq.com/cluster-formation.html#node-health-checks-and-cleanup.
+    cluster_formation.node_cleanup.only_log_warning = true
+    cluster_partition_handling = autoheal
+
+    ## The default "guest" user is only permitted to access the server
+    ## via a loopback interface (e.g. localhost)
+    loopback_users.guest = false
+
+    management.load_definitions = /etc/definitions/definitions.json
+
+    ## Memory-based Flow Control threshold
+    vm_memory_high_watermark.{{ .Values.rabbitmqMemoryHighWatermarkType }} = {{ .Values.rabbitmqMemoryHighWatermark }}
+
+    ## Auth HTTP Backend Plugin
+    {{- if .Values.rabbitmqAuthHTTP.enabled }}
+{{ .Values.rabbitmqAuthHTTP.config | indent 4 }}
+    {{- end }}
+
+    ## LDAP Plugin
+    {{- if .Values.rabbitmqLDAPPlugin.enabled }}
+{{ .Values.rabbitmqLDAPPlugin.config | indent 4 }}
+    {{- end }}
+
+    ## MQTT Plugin
+    {{- if .Values.rabbitmqMQTTPlugin.enabled }}
+{{ .Values.rabbitmqMQTTPlugin.config | indent 4 }}
+    {{- end }}
+
+    ## Web MQTT Plugin
+    {{- if .Values.rabbitmqWebMQTTPlugin.enabled }}
+{{ .Values.rabbitmqWebMQTTPlugin.config | indent 4 }}
+    {{- end }}
+
+    ## STOMP Plugin
+    {{- if .Values.rabbitmqSTOMPPlugin.enabled }}
+{{ .Values.rabbitmqSTOMPPlugin.config | indent 4 }}
+    {{- end }}
+
+    ## Web STOMP Plugin
+    {{- if .Values.rabbitmqWebSTOMPPlugin.enabled }}
+{{ .Values.rabbitmqWebSTOMPPlugin.config | indent 4 }}
+    {{- end }}
+
+    ## AMQPS support
+    {{- if .Values.rabbitmqAmqpsSupport.enabled }}
+{{ .Values.rabbitmqAmqpsSupport.config | indent 4 }}
+    {{- end }}
+
+{{ .Values.extraConfig | indent 4 }}
+
+{{- end }}

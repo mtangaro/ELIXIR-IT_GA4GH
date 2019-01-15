@@ -1,0 +1,87 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: rmq
+spec:
+  serviceName: rmq
+  replicas: 3
+
+  volumeClaimTemplates:
+  - metadata:
+      name: rmq
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 3Gi
+
+  template:
+    metadata:
+      labels:
+        app: rmq
+    spec:
+      # prevents rmq pods running on the same nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - rmq
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: rmq
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+        lifecycle:
+          preStop:
+            exec:
+              command: ["rabbitmqctl", "stop"]
+
+        livenessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+          exec:
+            command: ["rabbitmqctl", "node_health_check"]
+
+        readinessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 1
+          failureThreshold: 10
+          exec:
+            command: ["rabbitmqctl", "node_health_check"]
+
+        ports:
+        - containerPort: 4369
+        - containerPort: 5672
+        - containerPort: 15672
+        - containerPort: 25672
+
+        volumeMounts:
+          - mountPath: /var/lib/rabbitmq
+            name: rmq
+
+        env:
+          - name: CLUSTERED
+            value: "true"
+          - name: CLUSTER_WITH
+            value: "rmq-0"
+          - name: RABBITMQ_SERVICE_DOMAIN
+            value: "rmq.default.svc.cluster.local"
+{{ if .Values.env }}
+{{ toYaml .Values.env | indent 10 }}
+{{ end }}
+{{ if .Values.resources }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+{{ end }}
+{{ if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+{{ end }}
