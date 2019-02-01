@@ -21,17 +21,17 @@ topology_template:
     fe_mem:
       type: scalar-unit.size
       description: Amount of Memory for the front-end node
-      default: 2 GB
+      default: 4 GB
       required: yes
     wn_cpus:
       type: integer
       description: Numer of CPUs for the WNs
-      default: 1
+      default: 2
       required: yes
     wn_mem:
       type: scalar-unit.size
       description: Amount of Memory for the WNs
-      default: 2 GB
+      default: 4 GB
       required: yes
 
     admin_username:
@@ -100,10 +100,7 @@ topology_template:
             mem_size: { get_input: fe_mem }
         os:
           properties:
-            image: ost://cloud.recas.ba.infn.it/1113d7e8-fc5d-43b9-8d26-61906d89d479 # ubuntu-16.04_2nic
-            #type: linux
-            #distribution: ubuntu
-            #version: 16.04
+            image: ost://cloud.recas.ba.infn.it/8f667fbc-40bf-45b8-b22d-40f05b48d060 # RECAS Ubuntu 16.04 LTS [Daily Build 20181114]
 
     wn_node:
       type: tosca.nodes.indigo.LRMS.WorkerNode.Kubernetes
@@ -128,14 +125,11 @@ topology_template:
             mem_size: { get_input: wn_mem }
         os:
           properties:
-            image: ost://cloud.recas.ba.infn.it/1113d7e8-fc5d-43b9-8d26-61906d89d479 # ubuntu-16.04_2nic
-            #type: linux
-            #distribution: ubuntu
-            #version: 16.04
+            image: ost://cloud.recas.ba.infn.it/8f667fbc-40bf-45b8-b22d-40f05b48d060 # RECAS Ubuntu 16.04 LTS [Daily Build 20181114]
 
   outputs:
     tesk_url:
-      value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':30080' ] }
+      value: { concat: [ 'http://', get_attribute: [ lrms_server, public_address, 0 ], ':30080' ] }
     dashboard_url:
       value: { concat: [ 'https://', get_attribute: [ lrms_server, public_address, 0 ], ':30443/' ] }
     cluster_creds:
